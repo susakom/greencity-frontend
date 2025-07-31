@@ -1,0 +1,109 @@
+version: '3.8'
+
+# Определяем сеть
+networks:
+  green-city-net:
+    driver: bridge
+    name: green-city-network
+
+# Объявляем тома
+volumes:
+  pg_:
+    driver: local
+    name: gc-postgres-data
+
+services:
+  postgres:
+    build:
+      context: ./postgresql
+      dockerfile: Dockerfile
+    container_name: gc-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_:/var/lib/postgresql/data
+    networks:
+      - green-city-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATASOURCE_USER} -d greencity"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  backcore:
+    build:
+      context: ./backcore
+      dockerfile: Dockerfile
+    container_name: gc-backcore
+    ports:
+      - "8080:8080"
+    environment:
+      - DATASOURCE_URL=${DATASOURCE_URL}
+      - DATASOURCE_USER=${DATASOURCE_USER}
+      - DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-prod}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - CLOUD_NAME=${CLOUD_NAME}
+      - API_KEY=${API_KEY}
+      - API_SECRET=${API_SECRET}
+      - AZURE_CONNECTION_STRING=${AZURE_CONNECTION_STRING}
+      - AZURE_CONTAINER_NAME=${AZURE_CONTAINER_NAME}
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE}
+      - MAX_REQUEST_SIZE=${MAX_REQUEST_SIZE}
+      - BUCKET_NAME=${BUCKET_NAME}
+      - STATIC_URL=${STATIC_URL}
+      - DEFAULT_PROFILE_PICTURE=${DEFAULT_PROFILE_PICTURE}
+      - CHAT_LINK=${CHAT_LINK}
+      - PROFILE=${PROFILE}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - green-city-net
+    restart: unless-stopped
+
+  backuser:
+    build:
+      context: ./backuser
+      dockerfile: Dockerfile
+    container_name: gc-backuser
+    ports:
+      - "8060:8060"
+    environment:
+      - DATASOURCE_URL=${DATASOURCE_URL}
+      - DATASOURCE_USER=${DATASOURCE_USER}
+      - DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-prod}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - green-city-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gc-frontend
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_OPTIONS=--openssl-legacy-provider
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_ID_MANAGER=${GOOGLE_CLIENT_ID_MANAGER}
+    depends_on:
+      - backcore
+      - backuser
+    networks:
+      - green-city-net
+    restart: unless-stopped
