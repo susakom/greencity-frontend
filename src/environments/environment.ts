@@ -1,14 +1,20 @@
+// frontend/src/environments/environment.ts
 export const environment = {
   production: false,
   apiKeys: 'AIzaSyDanBliCzAuCZrsq67FeKEs3vqAilUD_is',
   apiMapKey: 'AIzaSyCU0ArzZlZ3n0pLq4o9MJy29LPT5DBMk4Y',
-  backendLink: 'http://backcore:8080/',
-  backendChatLink: 'http://chat-service/',
-  backendUserLink: 'http://backuser:8060/',
-  backendUbsLink: 'http://ubs-service',
-  frontendLink: 'http://frontend:4200/',
-  socket: 'http://backcore:8080/socket',
-  chatSocket: 'http://chat-service/socket',
+
+  
+  backendLink: window._env_?.backendCoreUrl,
+  backendUserLink: window._env_?.backendUserUrl,
+  backendChatLink: window._env_?.backendChatUrl,
+  backendUbsLink: window._env_?.backendUbsUrl,
+  frontendLink: window._env_?.frontendUrl,
+  socket: window._env_?.socketUrl,
+  chatSocket: window._env_?.chatSocketUrl,
+
+
+
   firebaseConfig: {
     apiKey: 'AIzaSyDSVxahTHqdffRX2upKIMXCCjEBUYoHX8E',
     authDomain: 'greencity-9bdb7.firebaseapp.com',

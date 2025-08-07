@@ -82,6 +82,10 @@ export class SignUpComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public onSubmit(userOwnRegister: UserOwnSignUp): void {
+      console.log('✅ onSubmit call');
+      console.log('Dates from form:', this.signUpForm.value);    
+
+
     const { email, firstName, password } = this.signUpForm.value;
 
     userOwnRegister.email = email;
@@ -195,7 +199,16 @@ export class SignUpComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private onSubmitError(errors: HttpErrorResponse): void {
-    errors.error.map((error) => {
+      
+      console.log('❌ full object error:', errors);
+      console.log('❌ errors.error:', errors.error);
+      console.log('❌ Type errors.error:', typeof errors.error);
+      console.log('❌ Is a massive?', Array.isArray(errors.error));
+    
+
+
+
+      errors.error.map((error) => {
       this.errorsType[error.name](error.message);
     });
     this.loadingAnim = false;

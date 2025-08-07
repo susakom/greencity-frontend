@@ -37,5 +37,9 @@
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts"  
+  ]
 }
