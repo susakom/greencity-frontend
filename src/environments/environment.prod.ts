@@ -2,13 +2,21 @@ export const environment = {
   production: true,
   apiKeys: 'AIzaSyAkfqpSGHVE28AjQoPcZFZd8AaPB_RU39k',
   apiMapKey: 'AIzaSyCHj-foTxtWg0hud8sbF6lPTmT0BYdAwFE',
-  backendLink: 'https://greencity.pick-up.city/',
-  backendChatLink: 'https://greencity-chat.pick-up.city/',
-  backendUserLink: 'https://greencity-user.pick-up.city/',
-  backendUbsLink: 'https://greencity-ubs.pick-up.city',
-  frontendLink: 'https://www.pick-up.city/',
-  socket: 'https://greencity.pick-up.city/socket',
-  chatSocket: 'https://greencity-chat.pick-up.city/socket',
+
+  backendLink: window._env_?.backendCoreUrl,
+  backendUserLink: window._env_?.backendUserUrl,
+  backendChatLink: window._env_?.backendChatUrl,
+  backendUbsLink: window._env_?.backendUbsUrl,
+  frontendLink: window._env_?.frontendUrl,
+  socket: window._env_?.socketUrl,
+  chatSocket: window._env_?.chatSocketUrl,
+
+
+
+
+
+
+
   firebaseConfig: {
     apiKey: 'AIzaSyDSVxahTHqdffRX2upKIMXCCjEBUYoHX8E',
     authDomain: 'greencity-9bdb7.firebaseapp.com',
