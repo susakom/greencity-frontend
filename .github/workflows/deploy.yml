@@ -170,6 +170,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
                   ls -al
+                  # 🔐 Авторизация в AWS ECR
+                  echo "🔐 Авторизация в Amazon ECR..."
+                  aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+                  docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
                   echo "🚀 Деплой frontend с тегом: $IMAGE_TAG"
                   export IMAGE_TAG=$IMAGE_TAG
                   docker-compose pull frontend
