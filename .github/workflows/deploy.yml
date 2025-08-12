@@ -72,6 +72,24 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+          # 🔥 Создаём временный файл с переменными
+           echo "IMAGE_TAG=$IMAGE_TAG" > .add_env_frontend
+           echo "ECR_REGISTRY=$ECR_REGISTRY" >> .add_env_frontend
+           echo "ECR_REPOSITORY=$ECR_REPOSITORY" >> .add_env_frontend
+      
+          # Проверка
+           cat .add_env_frontend
+      - name: Copy .add_env_frontend to EC2
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ steps.get_instance_info.outputs.ec2_public_dns }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: ".add_env_frontend"
+          target: "/home/ubuntu/.add_env_frontend"
+
+
+
       - name: Generate config.js
         env:
           PUBLIC_IP: ${{ steps.get_instance_info.outputs.ec2_public_ip }}
@@ -164,6 +182,7 @@ jobs:
         uses: appleboy/ssh-action@v1
         env:
             IMAGE_TAG: ${{ github.sha }}
+
         with:
           host: ${{ steps.get_instance_info.outputs.ec2_public_dns }}
           username: ubuntu
