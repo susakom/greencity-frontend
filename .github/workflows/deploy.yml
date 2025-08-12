@@ -177,6 +177,7 @@ jobs:
 
                   echo "🚀 Деплой frontend с тегом: $IMAGE_TAG"
                   export IMAGE_TAG=$IMAGE_TAG
+                  echo "Тег образа=" $IMAGE_TAG
                   docker-compose pull frontend
                   docker-compose up -d 
                   docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
