@@ -86,7 +86,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: ".add_env_frontend"
-          target: "/home/ubuntu/.add_env_frontend"
+          target: "/home/ubuntu"
 
 
 
