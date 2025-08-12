@@ -169,6 +169,6 @@ jobs:
         env:
            IMAGE_TAG: ${{ github.sha }}
            script: |
-              cd /home/ubuntu
+              cd ~
               export IMAGE_TAG=${{ github.sha }}
-              docker-compose up -d 
+              docker-compose up 
