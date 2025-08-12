@@ -72,7 +72,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Generate config.js and .env
+      - name: Generate config.js
         env:
           PUBLIC_IP: ${{ steps.get_instance_info.outputs.ec2_public_ip }}
         run: |
@@ -85,6 +85,71 @@ jobs:
             socketUrl: "http://${PUBLIC_IP}:8080/socket"
           };
           EOF
+
+      - name: Generate .env
+        env:
+          PUBLIC_IP: ${{ steps.get_instance_info.outputs.ec2_public_ip }}
+        run: |
+          # Проверка, что IP получен
+          if [ -z "$PUBLIC_IP" ]; then
+            echo "❌ Ошибка: PUBLIC_IP пустой. Проверьте EC2 instance."
+            exit 1
+          fi
+      
+          # Получаем секреты из AWS Secrets Manager
+          echo "🔐 Получаем секреты из AWS Secrets Manager..."
+          SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id greencity-rds-env --query SecretString --output text)
+      
+          # Парсим значения
+          DATASOURCE_URL=$(echo $SECRET_JSON | jq -r '.DATASOURCE_URL')
+          DATASOURCE_USER=$(echo $SECRET_JSON | jq -r '.DATASOURCE_USER')
+          DATASOURCE_PASSWORD=$(echo $SECRET_JSON | jq -r '.DATASOURCE_PASSWORD')
+          EMAIL_ADDRESS=$(echo $SECRET_JSON | jq -r '.EMAIL_ADDRESS')
+          EMAIL_PASSWORD=$(echo $SECRET_JSON | jq -r '.EMAIL_PASSWORD')
+      
+          # Формируем .env
+          cat > .env << EOF
+              # === База данных ===
+              DATASOURCE_URL=$DATASOURCE_URL
+              DATASOURCE_USER=$DATASOURCE_USER
+              DATASOURCE_PASSWORD=$DATASOURCE_PASSWORD
+              
+              # === Email ===
+              EMAIL_ADDRESS=$EMAIL_ADDRESS
+              EMAIL_PASSWORD=$EMAIL_PASSWORD
+              
+              # === Google ===
+              GOOGLE_CLIENT_ID=129513550972-ffqpdq6e5basbn9pcdvroqf20ffcg09f.apps.googleusercontent.com
+              GOOGLE_API_KEY=AIzaSyCN1iqS_3TcZ2d2d5SZwUnTOqDiRmwG13c
+              GOOGLE_CLIENT_ID_MANAGER=236387301472-5fqure34s5flqp7fl94jiem8todv64d5.apps.googleusercontent.com
+              
+              # === Cloudinary ===
+              CLOUD_NAME=greencity-lv448java
+              API_KEY=675739387883727
+              API_SECRET=3nJsbn28s_RWJJo67kG8OY-ywJ8
+              
+              # === Azure ===
+              AZURE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=csb10032000a548f571;AccountKey=qV2VLVZlzxuEq8zGTgeiVE9puJiELNRPZcB9YgTSjZ3wKdWVA7kPjSOp6ESHlVMTJfHxB6N+iaV2TOlbe1GTvg==
+              AZURE_CONTAINER_NAME=allfiles
+              
+              # === Ограничения файлов ===
+              MAX_FILE_SIZE=2MB
+              MAX_REQUEST_SIZE=2MB
+              
+              # === Google Cloud Storage ===
+              BUCKET_NAME=staging.greencity-c5a3a.appspot.com
+              STATIC_URL=https://storage.cloud.google.com/
+              DEFAULT_PROFILE_PICTURE=https://storage.cloud.google.com/staging.greencity-c5a3a.appspot.com/3d1a4092-c31e-4a0f-814b-57a0e4de0851
+              
+              # === Прочие ===
+              CHAT_LINK=http://chat:8030
+              PROFILE=docker
+              
+              # === URL фронтенда ===
+              CLIENT_APP_URL=http://${PUBLIC_IP}:4200
+              EOF
+      
+          echo "✅ Файл .env успешно создан"
           
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.5
