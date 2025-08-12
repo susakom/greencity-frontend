@@ -162,6 +162,7 @@ jobs:
               # === Прочие ===
               CHAT_LINK=http://chat:8030
               PROFILE=docker
+              GOOGLE_APPLICATION_CREDENTIALS="/home/ubuntu/google-creds.json"
               
               # === URL фронтенда ===
               CLIENT_APP_URL=http://${PUBLIC_IP}:4200
