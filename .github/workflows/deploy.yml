@@ -37,13 +37,13 @@ jobs:
         run: |
           PUBLIC_IP=${{ secrets.EC2_PUBLIC_IP }}
           cat > config.js << EOF
-window._env_ = {
-  backendCoreUrl: "http://${PUBLIC_IP}:8080/",
-  backendUserUrl: "http://${PUBLIC_IP}:8060/",
-  frontendUrl: "http://${PUBLIC_IP}:4200/",
-  socketUrl: "http://${PUBLIC_IP}:8080/socket"
-};
-EOF
+          window._env_ = {
+            backendCoreUrl: "http://${PUBLIC_IP}:8080/",
+            backendUserUrl: "http://${PUBLIC_IP}:8060/",
+            frontendUrl: "http://${PUBLIC_IP}:4200/",
+            socketUrl: "http://${PUBLIC_IP}:8080/socket"
+          };
+          EOF
           echo "CLIENT_APP_URL=http://${PUBLIC_IP}:4200" > .env
           echo "DATASOURCE_USER=postgres" >> .env
           # Пароль из AWS Secrets Manager
