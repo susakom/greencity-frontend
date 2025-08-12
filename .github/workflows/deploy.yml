@@ -170,6 +170,8 @@ jobs:
            IMAGE_TAG: ${{ github.sha }}
            script: |
               cd ~
-              export IMAGE_TAG=${{ github.sha }}
-              docker-compose config
-              docker-compose up 
+               echo "🚀 Деплой frontend с тегом: $IMAGE_TAG"
+                export IMAGE_TAG=$IMAGE_TAG
+                docker-compose pull frontend
+                docker-compose up -d 
+                docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
