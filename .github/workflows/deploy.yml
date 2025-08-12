@@ -194,7 +194,9 @@ jobs:
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
                   docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
                   echo "✅ Загружаем переменные из .add_env_frontend"
+                  set -a
                   source .add_env_frontend
+                  set +a
                   # ✅ Проверяем, что переменная есть
                   echo "🚀 Деплой frontend с тегом: $IMAGE_TAG"
                   echo "Тег образа= $IMAGE_TAG"
