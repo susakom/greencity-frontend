@@ -13,6 +13,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Get EC2 Public IP
+        id: get_ip
+        run: |
+          # Получаем публичный IP по имени инстанса
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=${{ secrets.EC2_INSTANCE_NAME }}" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].PublicIpAddress" \
+            --output text)
+          
+          if [ -z "$PUBLIC_IP" ]; then
+            echo "❌ Не удалось получить IP: инстанс не запущен или не найден"
+            exit 1
+          fi
+      
+          # Сохраняем как output
+          echo "ec2_public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
+          echo "✅ Найден публичный IP: $PUBLIC_IP"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
