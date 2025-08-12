@@ -171,5 +171,4 @@ jobs:
            script: |
               cd /home/ubuntu
               export IMAGE_TAG=${{ github.sha }}
-              docker-compose pull frontend
-              docker-compose up -d frontend
+              docker-compose up -d 
