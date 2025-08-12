@@ -193,10 +193,11 @@ jobs:
                   echo "🔐 Авторизация в Amazon ECR..."
                   aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
                   docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-
+                  echo "✅ Загружаем переменные из .add_env_frontend"
+                  source .add_env_frontend
+                  # ✅ Проверяем, что переменная есть
                   echo "🚀 Деплой frontend с тегом: $IMAGE_TAG"
-                  export IMAGE_TAG=$IMAGE_TAG
-                  echo "Тег образа=" $IMAGE_TAG
+                  echo "Тег образа= $IMAGE_TAG"
                   docker-compose pull frontend
                   docker-compose up -d 
                   docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
