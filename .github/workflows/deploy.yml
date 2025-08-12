@@ -85,12 +85,7 @@ jobs:
             socketUrl: "http://${PUBLIC_IP}:8080/socket"
           };
           EOF
-          echo "CLIENT_APP_URL=http://${PUBLIC_IP}:4200" > .env
-          echo "DATASOURCE_USER=postgres" >> .env
-          # Пароль из AWS Secrets Manager
-          export DB_SECRET=$(aws secretsmanager get-secret-value --secret-id greencity-rds-env --query SecretString --output text)
-          echo "DATASOURCE_PASSWORD=$(echo $DB_SECRET | jq -r .password)" >> .env
-
+          
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.5
         with:
