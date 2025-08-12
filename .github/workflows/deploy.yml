@@ -171,4 +171,5 @@ jobs:
            script: |
               cd ~
               export IMAGE_TAG=${{ github.sha }}
+              docker-compose config
               docker-compose up 
