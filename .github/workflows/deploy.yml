@@ -92,7 +92,7 @@ jobs:
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.5
         with:
-          host: ${PUBLIC_DNS}
+          host: ${{ steps.get_instance_info.outputs.ec2_public_dns }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "config.js,.env"
