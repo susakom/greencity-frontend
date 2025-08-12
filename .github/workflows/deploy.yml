@@ -21,26 +21,44 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
           
-      - name: Get EC2 Public IP
-        id: get_ip
+      - name: Get EC2 Public IP and DNS
+        id: get_instance_info
         run: |
-          # Получаем публичный IP по имени инстанса
-          PUBLIC_IP=$(aws ec2 describe-instances \
+          # Получаем информацию об инстансе в формате JSON
+          INSTANCE_INFO=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=${{ secrets.EC2_INSTANCE_NAME }}" "Name=instance-state-name,Values=running" \
-            --query "Reservations[0].Instances[0].PublicIpAddress" \
-            --output text)
-          
-          if [ -z "$PUBLIC_IP" ]; then
-            echo "❌ Не удалось получить IP: инстанс не запущен или не найден"
+            --query "Reservations[0].Instances[0]" \
+            --output json)
+      
+          # Проверяем, найден ли инстанс
+          if [ -z "$INSTANCE_INFO" ] || [ "$INSTANCE_INFO" = "null" ]; then
+            echo "❌ Не удалось найти запущенный инстанс с именем: ${{ secrets.EC2_INSTANCE_NAME }}"
             exit 1
           fi
       
-          # Сохраняем как output
+          # Извлекаем Public IP и Public DNS
+          PUBLIC_IP=$(echo $INSTANCE_INFO | jq -r '.PublicIpAddress')
+          PUBLIC_DNS=$(echo $INSTANCE_INFO | jq -r '.PublicDnsName')
+      
+          # Проверяем, что IP и DNS получены
+          if [ -z "$PUBLIC_IP" ] || [ "$PUBLIC_IP" = "null" ]; then
+            echo "⚠️  Публичный IP не назначен (возможно, инстанс ещё не готов)"
+          else
+            echo "✅ Найден публичный IP: $PUBLIC_IP"
+          fi
+      
+          if [ -z "$PUBLIC_DNS" ] || [ "$PUBLIC_DNS" = "null" ]; then
+            echo "⚠️  Публичное DNS не назначено"
+          else
+            echo "✅ Найдено публичное DNS: $PUBLIC_DNS"
+          fi
+      
+          # Сохраняем в outputs для использования в других шагах
           echo "ec2_public_ip=$PUBLIC_IP" >> $GITHUB_OUTPUT
-          echo "✅ Найден публичный IP: $PUBLIC_IP"
+          echo "ec2_public_dns=$PUBLIC_DNS" >> $GITHUB_OUTPUT
 
 
-
+          
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
