@@ -198,6 +198,7 @@ jobs:
                   set -a
                   source .add_env_frontend
                   source .add_env_backuser
+                  source .add_env_backcore
                   set +a
                   # ✅ Проверяем, что переменная есть
                   echo "🚀 Деплой frontend с тегом: $IMAGE_FRONTEND_TAG"
